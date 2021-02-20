@@ -6,25 +6,57 @@
 #include <WakeOnLan.h>
 #include <algorithm>
 
+// GPIO for DHT sensor connection
 #define DHTPIN 2
+
+// DHT sensor type
 #define DHTTYPE DHT11
+
+// size of buffer for sending data over http
 #define BUFFER_SIZE 16384
+
+// sample interval of DHT sensor (in ms)
 #define DHT_SAMPLE_INT 4000
+
+// measurment write interval of DHT sensor to flash (in ms)
 #define DHT_WRITE_INT 300000
+
+// name of main page file
 #define PAGE_FILE_NAME "index.html"
-#define MAX_FILE_SIZE 236004
-#define UDP_TIMEOUT 500
-#define UDP_RETRY 4
+
+// http request timeout (in ms)
 #define HTTP_TIMEOUT 4000
+
+// data is stored in 2 files to guarantee appending
+// after first file reaches this size we switch to second file
+// after filling second file we clear first file and append there
+// this way we can keep appending without deleting all of our data
+#define MAX_FILE_SIZE 236004
+
+// UDP packet timeout (in ms)
+#define UDP_TIMEOUT 500
+
+// NTP pool IP
+#define NTP_POOL_IP 162,159,200,123
+
+// max UDP retries for NTP request
+#define UDP_RETRY 4
+
+// listeting port for WakeOnLan functionality
 #define WOL_LISTEN_PORT 49500
 
+// mac address for WoL
+#define WoL_MAC_ADDRESS { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 }
+
+// number of samples per write
 #define SAMPLE_COUNT (DHT_WRITE_INT/DHT_SAMPLE_INT)
 
-#define AAAAAAA A
-
+// set to false in normal operation
+// true for debug over serial
 #define DEBUG false
 #define DEBUG_SERIAL if(DEBUG)Serial
 
+// html page for erasing all reading data
 const char* clear_page = R"=====(<!DOCTYPE html>
 <html>
     <meta charset="UTF-8">
@@ -72,26 +104,30 @@ const char* clear_page = R"=====(<!DOCTYPE html>
 </html>)=====";
 
 
+// Wi-Fi credentials
+const char* ssid     = "****";
+const char* password = "****";
 
-
-const char* ssid     = "TP-LINK7";
-const char* password = "koraga23";
-
+// DHT object
 DHT dht(DHTPIN, DHTTYPE);
 
+// data buffer
 char buffer[BUFFER_SIZE];
 
 // Set web server port number to 80
 WiFiServer server(80);
 
+// UDP object for NTP connections
 WiFiUDP Udp;
-IPAddress pool_ip(162,159,200,123); 
+IPAddress pool_ip(NTP_POOL_IP); 
 unsigned int udp_port = 123;
 
-
+// UDP object for WoL functionality
 WiFiUDP WOL_UDP;
+
+// IP set to broadcast
 IPAddress computer_ip(255,255,255,255); 
-byte mac[] = { 0x00, 0xd8, 0x61, 0xbf, 0x38, 0x88 };
+byte mac[] = WoL_MAC_ADDRESS;
 
 // Variable to store the HTTP request
 String header;
@@ -109,6 +145,7 @@ unsigned long last_write = millis();
 unsigned long current_time_unix = 1612029315;
 unsigned long last_update_timestamp = millis();
 
+// arbitrary values
 float temperature_celsius = 25.5f;
 float humidity = 45.5f;
 
@@ -306,6 +343,17 @@ struct data_struct{
       data_file.write(time_buffer_inv, 4);
 
       // offset temperature value to fit in 8 bits with sign and 2 bits for fraction
+
+/*
+  6 byte entry structure:
+
+  First 4 bytes - seconds since unix epoch
+  5th byte - temperature with 1 sign bit, 5 bits for integer, 2 bits for fractions
+  6th byte - humidity with 7 bits for integer, 1 bit for fraction
+
+  certainly not the best way but good efficency in limited space
+*/
+
       _temp -= 16.0f;
 
       // save sign bit
@@ -446,6 +494,7 @@ data_struct data;
 int entry_pointer = 0;
 int entry_counter = 0;
 
+// if something fails on setup - dont operate and light builtin diode
 bool halt = false;
 
 WiFiClient server_client;
@@ -456,6 +505,7 @@ bool sampleDHT();
 void updateTimeApprox();
 void initTime();
 void checkWolUDP();
+void sendWoLPacket();
 unsigned long getTime();
 bool enterData();
 
@@ -653,15 +703,18 @@ void handleClient(WiFiClient &client){
             DEBUG_SERIAL.println("RECEIVED GET TEMPERATURE.BIN REQUEST");
             request_type = 'T';
           }
-
           else if(currentLine.indexOf("GET /clear_data HTTP/1.1") != -1){
             DEBUG_SERIAL.println("RECEIVED CLEAR REQUEST");
             request_type = 'C';
           }
-
           else if(currentLine.indexOf("GET /kfkdpakfpdask HTTP/1.1") != -1){
             DEBUG_SERIAL.println("RECEIVED CONFIRMED CLEAR REQUEST");
             data.eraseAllData();
+            request_type = 'R';
+          }
+          else if(currentLine.indexOf("GET /wol HTTP/1.1") != -1){
+            DEBUG_SERIAL.println("RECEIVED WAKEONLAN REQUEST");
+            sendWoLPacket();
             request_type = 'R';
           }
 
@@ -674,9 +727,6 @@ void handleClient(WiFiClient &client){
     }
   }
   
-
-
-
   // clear the header variable
   header = "";
   // close the connection
@@ -684,52 +734,6 @@ void handleClient(WiFiClient &client){
   DEBUG_SERIAL.println("Client disconnected.");
 }
 
-#if false
-bool sampleDHT(){
-		DEBUG_SERIAL.println("sampling DHT");
-
-    digitalWrite(LED_BUILTIN, LOW);
-
-    // float temp_samples[3];
-    // float hum_samples[3];
-    temperature_celsius = dht.readTemperature();
-    humidity = dht.readHumidity();
-    temperature_celsius = 0.0f;
-    humidity = 0.0f;
-    for(int i = 0; i < 2; i++){
-      delay(500);
-      temperature_celsius += dht.readTemperature();
-      humidity += dht.readHumidity();
-    }
-
-    temperature_celsius /= 2.0f;
-    humidity /= 2.0f;
-
-
-    digitalWrite(LED_BUILTIN, HIGH);
-
-    // get time from NTP server
-		current_time_unix = getTime();
-
-		DEBUG_SERIAL.println("writing entry");
-		DEBUG_SERIAL.printf("temp: %f'\n", temperature_celsius);
-		DEBUG_SERIAL.printf("hum: %f'\n", humidity);
-
-    bool res = false;
-    // check if data is good (DHT11 is not that reliable)
-    bool good_readings = (temperature_celsius > -50) && (temperature_celsius < 50) && (humidity >= 0) && (humidity <= 100);
-    
-		DEBUG_SERIAL.printf("good readings: %d\n", (int)good_readings);
-    if(good_readings){
-      res = data.writeEntry(current_time_unix, temperature_celsius, humidity);
-      if(res){
-        last_sample = millis();
-      }
-    }
-
-    return res;
-}
-#else
 bool sampleDHT(){
     unsigned int _temp_timestamp = millis();
 
@@ -772,7 +776,7 @@ bool sampleDHT(){
 
     return res;
 }
-#endif
+
 bool enterData(){
     unsigned int _temp_timestamp = millis();
 
@@ -782,7 +786,6 @@ bool enterData(){
 
     // get entry counter
     int count = std::min(SAMPLE_COUNT, entry_counter);
-
 
 		DEBUG_SERIAL.print("count: ");
 		DEBUG_SERIAL.println(count);
@@ -815,22 +818,15 @@ bool enterData(){
 		DEBUG_SERIAL.printf("temperature: %f'\n", temperature_celsius);
 		DEBUG_SERIAL.printf("humidity: %f'\n", humidity);
 
-    bool res = false;
-    // check if data is good (DHT11 is not that reliable)
+    // check if data is good (DHT11 is not that reliable so this might be a good idea)
     //bool good_readings = (temperature_celsius > -50) && (temperature_celsius < 50) && (humidity >= 0) && (humidity <= 100);
-    
-		//DEBUG_SERIAL.printf("good readings: %d\n", (int)good_readings);
-    //if(good_readings){
-    int counter = 0;
-    while(!res && counter < 10){
-      res = data.writeEntry(time_unix, temperature_celsius, humidity);
-      if(res){
-        last_write = _temp_timestamp;
-        entry_counter = 0;
-        entry_pointer = 0;
-      }
+    bool res = data.writeEntry(time_unix, temperature_celsius, humidity);
+
+    if(res){
+      last_write = _temp_timestamp;
+      entry_counter = 0;
+      entry_pointer = 0;
     }
-    //}
 
     return res;
 }
@@ -976,15 +972,19 @@ void initTime(){
 
 void checkWolUDP(){
   int packetSize = WOL_UDP.parsePacket();
-  if (packetSize) {
-    digitalWrite(LED_BUILTIN, LOW);
-    DEBUG_SERIAL.println("Sending WOL Packet...");
-    WOL_UDP.stop();
-    WOL_UDP.begin(9);
-    WakeOnLan::sendWOL(computer_ip, WOL_UDP, mac, sizeof mac);
-    WOL_UDP.stop();
-    WOL_UDP.begin(WOL_LISTEN_PORT);
-    digitalWrite(LED_BUILTIN, HIGH);
-  }
+  // upon receiving single byte from UDP send WoL packet
+  if (packetSize == 1) 
+    sendWoLPacket();
+}
+
+void sendWoLPacket(){
+  digitalWrite(LED_BUILTIN, LOW);
+  DEBUG_SERIAL.println("Sending WOL Packet...");
+  WOL_UDP.stop();
+  WOL_UDP.begin(9);
+  WakeOnLan::sendWOL(computer_ip, WOL_UDP, mac, sizeof mac);
+  WOL_UDP.stop();
+  WOL_UDP.begin(WOL_LISTEN_PORT);
+  digitalWrite(LED_BUILTIN, HIGH);
 }
 
