@@ -20,6 +20,8 @@
 
 #define SAMPLE_COUNT (DHT_WRITE_INT/DHT_SAMPLE_INT)
 
+#define AAAAAAA A
+
 #define DEBUG false
 #define DEBUG_SERIAL if(DEBUG)Serial
 
