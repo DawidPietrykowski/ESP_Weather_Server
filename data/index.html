@@ -436,8 +436,9 @@
           timeZone: 'UTC'
         };
 
-        //const response = await fetch('/temperature_new.bin');
-        const response = await fetch('http://dawidpietrykowski.ddns.net/temperature.bin');
+        var domain_name = '';
+
+        const response = await fetch('http://'+domain_name+'/temperature.bin');
         const data = await response.arrayBuffer();            
             
         bin_data = data;
