@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html>
+    
+<meta charset="UTF-8">
+
+  <head>
+    <title>Weather station</title> 
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@100&display=swap" rel="stylesheet"> 
+    <link rel="icon" href="https://img.icons8.com/ios/100/fa314a/graph--v2.png"/>
+    <script type="text/javascript" src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+  </head>
+  <body>
+    <style>
+      div.container {
+        background-color:#2f3036;  
+        width: 90%;    
+        margin: auto
+      }
+      .item1 p {
+        text-align: left;
+        font-family: 'Roboto', Arial;
+        font-size: 55px;
+        font-style: normal;
+        font-weight: normal;
+        text-decoration: none;
+        text-transform: none;
+        /*color: #52a2f8;*/
+        color: #ffffff;
+        background-color:#2f3036;
+      }
+      .item2 p {
+        text-align: right;
+        font-family: 'Roboto', Arial;
+        font-size: 55px;
+        font-style: normal;
+        font-weight: normal;
+        text-decoration: none;
+        text-transform: none;
+        color: #ff1f1f;
+        background-color:#2f3036;
+      }
+      .item3 p {
+        text-align: left;
+        font-family: 'Roboto', Arial;
+        font-size: 55px;
+        font-style: normal;
+        font-weight: normal;
+        text-decoration: none;
+        text-transform: none;
+        color: #ffffff;
+        background-color:#2f3036;
+      }
+      .item4 p {
+        text-align: right;
+        font-family: 'Roboto', Arial;
+        font-size: 55px;
+        font-style: normal;
+        font-weight: normal;
+        text-decoration: none;
+        text-transform: none;
+        /*color: #ff1f1f;*/
+        color: #52a2f8;
+        background-color:#2f3036;
+      }
+
+      .page {
+        display: block;
+      }
+
+
+      .modebar{
+      display: none !important;
+}
+
+
+
+
+
+
+      .wrapper {
+        position: relative;
+        width: 30%;
+        height: 4px;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        top: 0;
+        margin: auto;
+        padding: 20px 0 20px 0;
+      }
+
+.loader_t {
+  height: 100%;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-transform: translateZ(0);
+          transform: translateZ(0);
+}
+.loader_t div {
+  -webkit-box-flex: 1;
+      -ms-flex: 1;
+          flex: 1;
+  background: rgb(255, 49, 26);
+  -webkit-animation: go 0.8s infinite alternate ease;
+          animation: go 0.8s infinite alternate ease;
+  /*box-shadow: 0 0 20px salmon;*/
+}
+.loader_t div:nth-child(1) {
+  -webkit-animation-delay: -0.72s;
+          animation-delay: -0.72s;
+}
+.loader_t div:nth-child(2) {
+  -webkit-animation-delay: -0.64s;
+          animation-delay: -0.64s;
+}
+.loader_t div:nth-child(3) {
+  -webkit-animation-delay: -0.56s;
+          animation-delay: -0.56s;
+}
+.loader_t div:nth-child(4) {
+  -webkit-animation-delay: -0.48s;
+          animation-delay: -0.48s;
+}
+.loader_t div:nth-child(5) {
+  -webkit-animation-delay: -0.4s;
+          animation-delay: -0.4s;
+}
+.loader_t div:nth-child(6) {
+  -webkit-animation-delay: -0.32s;
+          animation-delay: -0.32s;
+}
+.loader_t div:nth-child(7) {
+  -webkit-animation-delay: -0.24s;
+          animation-delay: -0.24s;
+}
+.loader_t div:nth-child(8) {
+  -webkit-animation-delay: -0.16s;
+          animation-delay: -0.16s;
+}
+.loader_t div:nth-child(9) {
+  -webkit-animation-delay: -0.08s;
+          animation-delay: -0.08s;
+}
+.loader_t div:nth-child(10) {
+  -webkit-animation-delay: 0s;
+          animation-delay: 0s;
+}
+
+
+
+
+.loader_h {
+  height: 100%;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-transform: translateZ(0);
+          transform: translateZ(0);
+}
+.loader_h div {
+  -webkit-box-flex: 1;
+      -ms-flex: 1;
+          flex: 1;
+  background: #52a2f8;
+  -webkit-animation: go 0.8s infinite alternate ease;
+          animation: go 0.8s infinite alternate ease;
+  /*box-shadow: 0 0 20px salmon;*/
+}
+.loader_h div:nth-child(1) {
+  -webkit-animation-delay: -0.72s;
+          animation-delay: -0.72s;
+}
+.loader_h div:nth-child(2) {
+  -webkit-animation-delay: -0.64s;
+          animation-delay: -0.64s;
+}
+.loader_h div:nth-child(3) {
+  -webkit-animation-delay: -0.56s;
+          animation-delay: -0.56s;
+}
+.loader_h div:nth-child(4) {
+  -webkit-animation-delay: -0.48s;
+          animation-delay: -0.48s;
+}
+.loader_h div:nth-child(5) {
+  -webkit-animation-delay: -0.4s;
+          animation-delay: -0.4s;
+}
+.loader_h div:nth-child(6) {
+  -webkit-animation-delay: -0.32s;
+          animation-delay: -0.32s;
+}
+.loader_h div:nth-child(7) {
+  -webkit-animation-delay: -0.24s;
+          animation-delay: -0.24s;
+}
+.loader_h div:nth-child(8) {
+  -webkit-animation-delay: -0.16s;
+          animation-delay: -0.16s;
+}
+.loader_h div:nth-child(9) {
+  -webkit-animation-delay: -0.08s;
+          animation-delay: -0.08s;
+}
+.loader_h div:nth-child(10) {
+  -webkit-animation-delay: 0s;
+          animation-delay: 0s;
+}
+
+
+
+
+@-webkit-keyframes go {
+  100% {
+    background: transparent;
+    -webkit-box-flex: 10;
+            flex: 10;
+    box-shadow: 0 0 0 transparent;
+  }
+}
+
+@keyframes go {
+  100% {
+    background: transparent;
+    -webkit-box-flex: 10;
+        -ms-flex: 10;
+            flex: 10;
+    box-shadow: 0 0 0 transparent;
+  }
+}
+
+
+
+      @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      } 
+
+
+      body{
+        background-color:#2f3036;
+        margin: 0 0 0 0;
+      }
+
+      .grid-container {
+        display: grid;
+        grid-template-columns: auto auto;
+        width: 90%;
+        margin: auto;
+      }
+
+
+      .bbar {
+        background-color:#101113;  
+        width: 100%;    
+        margin: 0 0 0 0;
+        padding: 0 0 0 0;
+        position: absolute;
+        bottom: auto;
+      }
+      
+      .bbar p{
+        background-color:#101113;  
+        margin: 0px 20px 0px 0px;
+        padding: 20px 50px 20px 0px;
+        text-align: right;
+        font-family: 'Roboto', Arial;
+        font-size: 20px;
+        font-style: normal;
+        font-weight: normal;
+        color: #ffffff3f;
+      }
+
+      .navbar {
+        background-color:#101113;  
+        width: 100%;    
+        margin: 0 0 0 0;
+        padding: 0 0 0 0;
+        display: grid;
+        grid-template-columns: auto auto;
+      }
+
+      .navbar .item1 {
+        background-color:#101113;  
+        grid-column-start: 1;
+        grid-column-end: 1;
+        margin-left: 11%
+      }
+      .navbar .item2 {
+        background-color:#101113;  
+        grid-column-start: 2;
+        grid-column-end: 2;
+        margin-right: 8%;
+      }
+
+      .navbar .item1 a p {
+        background-color:#101113;  
+        margin-left: 8%;
+        text-align: left;
+        font-family: 'Roboto', Arial;
+        font-size: 40px;
+        font-style: normal;
+        font-weight: normal;
+        color: #ffffff;
+      }
+      .navbar .item2 a p {
+        background-color:#101113;  
+        margin-right: 8%;
+        text-align: right;
+        font-family: 'Roboto', Arial;
+        font-size: 40px;
+        font-style: normal;
+        font-weight: normal;
+        color: #ffffff;
+      }
+
+      .item1 {
+        grid-column-start: 1;
+        grid-column-end: 1;
+        margin-left: 8%
+      }
+      .item2 {
+        grid-column-start: 2;
+        grid-column-end: 2;
+        margin-right: 8%;
+      }
+      .item3 {
+        grid-column-start: 1;
+        grid-column-end: 1;
+        margin-left: 8%
+      }
+      .item4 {
+        grid-column-start: 2;
+        grid-column-end: 2;
+        margin-right: 8%;
+      }
+    </style>
+    <div class = "page" id = "page">
+
+      <div class="navbar">
+        <div class="item1">
+          <a href="/" style="text-decoration: none;">
+            <p>Refresh</p>
+          </a>
+        </div>
+        <div class="item2">
+          <a href="temperature.bin" style="text-decoration: none;" download>
+            <p>Download</p>
+          </a>
+        </div>
+      </div>
+
+      <div class="grid-container">
+        <div class="item1">
+            <p>Temperature</p>
+        </div>
+        <div class="item2">
+            <p id="temp_display"></p>
+        </div>
+      </div>
+
+      <div class="wrapper" id="wrapper_t">
+        <div class="loader_t">
+          <div></div>
+          <div></div>
+          <div></div>
+          <div></div>
+          <div></div>
+          <div></div>
+          <div></div>
+          <div></div>
+          <div></div>
+        </div>
+      </div>
+      <div id="TT" style="width: 90%; height: 50%; margin: auto"></div>
+
+      <div class="grid-container">
+        <div class="item3">
+            <p>Humidity</p>
+        </div>
+        <div class="item4">
+            <p id="hum_display"></p>
+        </div>
+      </div>
+
+      <div class="wrapper" id="wrapper_h" style="padding-bottom: 50px;">
+        <div class="loader_h">
+          <div></div>
+          <div></div>
+          <div></div>
+          <div></div>
+          <div></div>
+          <div></div>
+          <div></div>
+          <div></div>
+          <div></div>
+        </div>
+      </div>
+      <div id="HH" style="width: 90%; height: 50%; margin: auto;"></div>
+
+      <div class="bbar">
+        <p>
+          Dawid Pietrykowski
+        </p>
+      </div>
+
+
+    </div>  
+    <script type="text/javascript">
+
+      var byteArray;
+      var bin_data;
+
+
+      var recent_temp;
+      var recent_hum;
+      
+      var time = [], temp = [], hum = [];
+
+      var time_raw = [];
+
+      async function processData() {
+
+        TT = document.getElementById('TT');
+        HH = document.getElementById('HH');
+        
+
+        var time_unix = [];
+
+        var options = {
+          year: 'numeric', month: 'numeric', day: 'numeric',
+          hour: 'numeric', minute: 'numeric', second: 'numeric',
+          hour12: false,
+          timeZone: 'UTC'
+        };
+
+        //const response = await fetch('/temperature_new.bin');
+        const response = await fetch('http://dawidpietrykowski.ddns.net/temperature.bin');
+        const data = await response.arrayBuffer();            
+            
+        bin_data = data;
+        byteArray = new DataView(data);
+
+        var chunksize = 4 + 1 + 1;
+
+        var size = byteArray.byteLength / 6;
+
+        console.log('received data');
+        console.log('size: ', size);
+        var date = new Date(0);
+        for (var i = 0; i < size; i++) {
+          var offset = i * chunksize;
+
+          
+          date = new Date(byteArray.getUint32(offset) * 1000);
+          time_raw.push(byteArray.getUint32(offset));
+          time.push(date);
+
+          var t_temp = byteArray.getInt8((offset + 4));
+
+
+          var temp_C = t_temp >> 2;
+          
+          if(t_temp < 0)
+            temp_C = ((-32 - temp_C));
+
+          var temp_F = ((t_temp & 3) * 0.25) * ((t_temp < 0) * -1 + (t_temp >= 0));
+          var t_temp_comb = temp_C + temp_F + 16;
+          //console.log(temp_F);
+          temp.push(t_temp_comb.toString());
+
+          
+          var t_hum = byteArray.getUint8((offset + 5));
+          var hum_C = t_hum >>> 1;
+          var hum_F = ((t_hum & 1) * 0.5);
+          var t_hum_comb = hum_C + hum_F;
+          //console.log(i, t_hum,hum_C,hum_F,t_hum_comb);
+          hum.push(t_hum_comb.toString());
+        }
+
+        recent_temp = temp[temp.length - 1];
+        recent_hum = hum[hum.length - 1];
+
+        console.log('compiled main arrays');
+
+        var counter = 0;
+        var i = 0;
+        var trend_t_y = [];
+        var trend_t_x = [];
+        var trend_h_y = [];
+        var trend_h_x = [];
+        var res = 4;
+        while (true){
+          if(i >= time.length){
+            trend_t_y[trend_t_y.length - 1] /= counter;
+            trend_h_y[trend_h_y.length - 1] /= counter;
+            break;
+          }
+          if(counter % res == 0){
+            trend_t_y[trend_t_y.length - 1] /= counter;
+            trend_h_y[trend_h_y.length - 1] /= counter;
+            counter = 0;
+
+            if((i + res/2) < time.length){
+              trend_t_x.push(time[(i + res/2)]);
+              trend_h_x.push(time[(i + res/2)]);
+            }else{
+              trend_t_x.push(time[time.length - 1]);
+              trend_h_x.push(time[time.length - 1]);
+            }
+            trend_t_y.push(0);
+            trend_h_y.push(0);
+          }
+
+          trend_t_y[trend_t_y.length - 1] += parseFloat(temp[i]);
+          trend_h_y[trend_h_y.length - 1] += parseFloat(hum[i]);
+
+          counter++;
+          i++;
+        }
+        trend_t_x.unshift(time[0]);
+        trend_h_x.unshift(time[0]);
+        trend_t_y.unshift((parseFloat(temp[0])+parseFloat(temp[1]))/2);
+        trend_h_y.unshift((parseFloat(hum[0])+parseFloat(hum[1]))/2);
+        
+        console.log('compiled secondary arrays');
+        var layout_t = {
+          hoverdistance: -1,
+          xaxis:{
+            showspikes: false,
+
+            autorange: true,
+            range: [
+              time[time.length * 0.75],
+              time[time.length-1]],
+            rangeselector: {
+              x: 0.01,
+              bgcolor: '#101113',
+              font: {
+                color: '#ffffff'
+              },
+              activecolor  :  '#2f3036',
+              buttons: [
+                {
+                  count: 6,
+                  label: '6h',
+                  step: 'hour',
+                  stepmode: 'backward',
+                },
+                {
+                  count: 2,
+                  label: '2d',
+                  step: 'day',
+                  stepmode: 'backward',
+                },
+                {
+                  count: 7,
+                  label: '1w',
+                  step: 'day',
+                  stepmode: 'backward',
+                },
+                {
+                  count: 1,
+                  label: '1m',
+                  step: 'month',
+                  stepmode: 'backward',
+                },
+                {
+                  step: 'all',
+                }
+              ]},
+              
+            type: 'date',
+
+            nticks: 10,
+            tickformat: '%H:%M %A',
+            tickfont:{
+              color: '#ffffff'
+            },
+            gridcolor: 'rgba(255, 255, 255, 0.2)'
+          },
+          yaxis:{
+            nticks: 6,
+            ticksuffix: '%',
+            tickfont:{
+              color: '#ffffff'
+            },
+            gridcolor: 'rgba(255, 255, 255, 0.2)'
+          },
+          margin: { t: 0 } ,
+          paper_bgcolor:'rgba(0,0,0,0)',
+          plot_bgcolor:'rgba(0,0,0,0)',
+        };
+
+        var layout_h = {
+          hoverdistance: -1,
+          xaxis:{
+            autorange: true,
+            range: [
+              time[time.length * 0.75],
+              time[time.length-1]],
+            rangeselector: {
+              x: 0.01,
+              bgcolor: '#101113',
+              font: {
+                color: '#ffffff'
+              },
+              activecolor  :  '#2f3036',
+              buttons: [
+                {
+                  count: 6,
+                  label: '6h',
+                  step: 'hour',
+                  stepmode: 'backward',
+                },
+                {
+                  count: 2,
+                  label: '2d',
+                  step: 'day',
+                  stepmode: 'backward',
+                },
+                {
+                  count: 7,
+                  label: '1w',
+                  step: 'day',
+                  stepmode: 'backward',
+                },
+                {
+                  count: 1,
+                  label: '1m',
+                  step: 'month',
+                  stepmode: 'backward',
+                },
+                {
+                  step: 'all',
+                }
+              ]},
+              
+            type: 'date',
+
+            nticks: 10,
+            tickformat: '%H:%M %A',
+            tickfont:{
+              color: '#ffffff'
+            },
+            gridcolor: 'rgba(255, 255, 255, 0.2)'
+          },
+          yaxis:{
+            nticks: 6,
+            ticksuffix: '%',
+            tickfont:{
+              color: '#ffffff'
+            },
+            gridcolor: 'rgba(255, 255, 255, 0.2)'
+          },
+          margin: { t: 0 } ,
+          paper_bgcolor:'rgba(0,0,0,0)',
+          plot_bgcolor:'rgba(0,0,0,0)',
+        };
+
+        layout_t.yaxis.ticksuffix = '°';
+        layout_h.yaxis.ticksuffix = '%';
+
+        var config = {responsive: true}
+
+        Plotly.newPlot( TT, [{
+        x: time,
+        y: temp,
+        name: '',
+        connectgaps: true,
+        showlegend : false,
+        type: 'scattergl',
+        mode: 'lines',
+        hoverinfo: 'y+x',
+        hovertemplate: '%{y} %{x|%H:%M %A}', 
+        hoverlabel: {
+          bgcolor: '#2f3036'
+        },
+        line: {
+          shape: 'spline',
+          smoothing: 0.8,
+          color: '#ff1f1f'},
+        }
+        ,{
+          x: trend_t_x,
+          y: trend_t_y,
+          showlegend : false,
+          connectgaps: true,
+          hoverinfo: 'none',
+          type: 'scatter',
+          mode: 'lines',
+            opacity: 0.5,
+          line: {
+            shape: 'spline',
+            smoothing: 1.3,
+            //color: '#007bff',
+            color: '#ffffff',
+            dash: 'dash'
+          },
+        }
+        ], layout_t, config);
+
+
+
+        Plotly.newPlot( HH, [{
+        x: time,
+        y: hum,
+        name: '',
+        connectgaps: true,
+        showlegend : false,
+        mode: 'lines',
+        type: 'scattergl',
+        hoverinfo: 'y+x',
+        hovertemplate: '%{y} %{x|%H:%M %A}', 
+        hoverlabel: {
+          bgcolor: '#2f3036'
+        },
+        line: {
+          shape: 'spline',
+          smoothing: 0.8},
+          color: '#007bff'
+        }        
+        ,{
+          x: trend_h_x,
+          y: trend_h_y,
+          connectgaps: true,
+          showlegend : false,
+          hoverinfo: 'none',
+          type: 'scatter',
+          mode: 'lines',
+            opacity: 0.5,
+          line: {
+            shape: 'spline',
+            smoothing: 1.3,
+            color: '#ffffff',
+            dash: 'dash'
+          },
+        }
+        ], layout_h);
+
+        HH.on('plotly_afterplot', function(){
+            showPage();
+        });
+        TT.on('plotly_afterplot', function(){
+            showPage();
+        });
+      }
+
+      var confirmations = 0;
+      function showPage(){
+        confirmations++;
+        if(confirmations == 2){
+            console.log('done plotting');
+            cancel_load();
+        }
+      }
+      function cancel_load(){
+        document.getElementById("wrapper_t").style.display = "none";
+        document.getElementById("wrapper_h").style.display = "none";
+        document.getElementById("temp_display").innerHTML = recent_temp + "°C";
+        document.getElementById("hum_display").innerHTML = recent_hum + "%";
+      }
+
+      setTimeout(function() {
+        processData();
+      }, 500);
+
+    </script>
+  </body>
+</html>
