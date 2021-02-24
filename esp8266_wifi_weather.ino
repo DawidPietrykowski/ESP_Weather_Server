@@ -5,6 +5,7 @@
 #include <WiFiUdp.h>
 #include <WakeOnLan.h>
 #include <algorithm>
+#include "credentials.h"
 
 // GPIO for DHT sensor connection
 #define DHTPIN 2
@@ -34,19 +35,10 @@
 #define MAX_FILE_SIZE 236004
 
 // UDP packet timeout (in ms)
-#define UDP_TIMEOUT 500
-
-// NTP pool IP
-#define NTP_POOL_IP 162,159,200,123
+#define UDP_TIMEOUT 750
 
 // max UDP retries for NTP request
 #define UDP_RETRY 4
-
-// listeting port for WakeOnLan functionality
-#define WOL_LISTEN_PORT 49500
-
-// mac address for WoL
-#define WoL_MAC_ADDRESS { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 }
 
 // number of samples per write
 #define SAMPLE_COUNT (DHT_WRITE_INT/DHT_SAMPLE_INT)
@@ -102,11 +94,6 @@ const char* clear_page = R"=====(<!DOCTYPE html>
         </div>
     </body> 
 </html>)=====";
-
-
-// Wi-Fi credentials
-const char* ssid     = "****";
-const char* password = "****";
 
 // DHT object
 DHT dht(DHTPIN, DHTTYPE);
@@ -528,8 +515,8 @@ void setup() {
   // init Wi-Fi
   WiFi.mode(WIFI_STA);
   DEBUG_SERIAL.print("Connecting to ");
-  DEBUG_SERIAL.println(ssid);
-  WiFi.begin(ssid, password);
+  DEBUG_SERIAL.println(WIFI_SSID);
+  WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
   while (WiFi.status() != WL_CONNECTED) {
     delay(500);
     digitalWrite(LED_BUILTIN, LOW);
@@ -891,7 +878,8 @@ unsigned long getTime(){
       }
     }
   }
-  if(packetSize > 0 && abs(c_time - current_time_unix) < 10 * DHT_SAMPLE_INT){
+  if(packetSize > 0){
+    last_update_timestamp = millis();
     return c_time;
   }else{
     updateTimeApprox();
