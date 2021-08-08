@@ -1,3 +1,5 @@
+#include <Arduino.h>
+
 #include <ESP8266WiFi.h>
 #include <DHT.h>
 #include <LittleFS.h>
@@ -11,7 +13,7 @@
 #define DHTPIN 2
 
 // DHT sensor type
-#define DHTTYPE DHT11
+#define DHTTYPE DHT21
 
 // size of buffer for sending data over http
 #define BUFFER_SIZE 16384
@@ -112,8 +114,11 @@ unsigned int udp_port = 123;
 // UDP object for WoL functionality
 WiFiUDP WOL_UDP;
 
+// UDP object for sending
+WiFiUDP SEND_UDP;
+
 // IP set to broadcast
-IPAddress computer_ip(255,255,255,255); 
+IPAddress broadcast_ip(255,255,255,255); 
 byte mac[] = WoL_MAC_ADDRESS;
 
 // Variable to store the HTTP request
@@ -493,6 +498,7 @@ void updateTimeApprox();
 void initTime();
 void checkWolUDP();
 void sendWoLPacket();
+void sendUDPChar(char c, int port);
 unsigned long getTime();
 bool enterData();
 
@@ -551,6 +557,9 @@ void setup() {
   // init WoL boot
   WOL_UDP.begin(WOL_LISTEN_PORT);
 
+  // init send udp
+  SEND_UDP.begin(SEND_UDP_PORT);
+
   // update time
   initTime();
 }
@@ -567,7 +576,7 @@ void loop(){
   // disable LED
   digitalWrite(LED_BUILTIN, HIGH);
 
-  // check   for incoming clients
+  // check for incoming clients
   server_client = server.available();   
 
   // handle incoming requests
@@ -696,13 +705,36 @@ void handleClient(WiFiClient &client){
           }
           else if(currentLine.indexOf("GET /kfkdpakfpdask HTTP/1.1") != -1){
             DEBUG_SERIAL.println("RECEIVED CONFIRMED CLEAR REQUEST");
-            data.eraseAllData();
             request_type = 'R';
+            data.eraseAllData();
           }
           else if(currentLine.indexOf("GET /wol HTTP/1.1") != -1){
             DEBUG_SERIAL.println("RECEIVED WAKEONLAN REQUEST");
-            sendWoLPacket();
             request_type = 'R';
+            sendWoLPacket();
+          }
+          else if(currentLine.indexOf("GET /send") != -1){
+            DEBUG_SERIAL.println("RECEIVED SEND REQUEST");
+            request_type = 'R';
+
+            int pos = currentLine.indexOf("char=", 0);
+
+            if(pos != -1){
+              char c = currentLine[pos + 5];
+
+              pos = currentLine.indexOf("port=", 0);
+              int endpos = currentLine.indexOf(' ', pos);
+              DEBUG_SERIAL.printf("pos=%d endpos=%d\n", pos, endpos);
+
+              if(pos != -1 && pos != -1){
+                String port_str = currentLine.substring(pos + 5, endpos);
+                DEBUG_SERIAL.println(port_str);
+                int port = (int)port_str.toInt();
+
+                if((port != 0) && (endpos - pos - 5 < 6))
+                  sendUDPChar(c, port);
+              }
+            }
           }
 
           currentLine = "";
@@ -755,6 +787,8 @@ bool sampleDHT(){
         entry_counter++;
 
         entry_pointer %= SAMPLE_COUNT;
+
+        res = true;
       }
 
       last_sample = _temp_timestamp;
@@ -970,9 +1004,23 @@ void sendWoLPacket(){
   DEBUG_SERIAL.println("Sending WOL Packet...");
   WOL_UDP.stop();
   WOL_UDP.begin(9);
-  WakeOnLan::sendWOL(computer_ip, WOL_UDP, mac, sizeof mac);
+  WakeOnLan::sendWOL(broadcast_ip, WOL_UDP, mac, sizeof mac);
   WOL_UDP.stop();
   WOL_UDP.begin(WOL_LISTEN_PORT);
   digitalWrite(LED_BUILTIN, HIGH);
 }
 
+void sendUDPChar(char c, int port){
+  digitalWrite(LED_BUILTIN, LOW);
+
+  char packet[1];
+
+  packet[0] = c;
+
+  DEBUG_SERIAL.printf("Sending UDP Packet char: %c port:%d\n", c, port);
+  SEND_UDP.beginPacket(broadcast_ip, port);
+  SEND_UDP.write(packet, 1);
+  SEND_UDP.endPacket();
+
+  digitalWrite(LED_BUILTIN, HIGH);
+}

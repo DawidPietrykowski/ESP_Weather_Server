@@ -1,0 +1,119 @@
+{
+  "uuid": "95c79f235761a035c05efde0966e5476",
+  "path": "Offline/esp8266_weather",
+  "name": "esp8266_weather",
+  "content": "",
+  "created_at": "2021-08-08 20:51:05",
+  "updated_at": "2021-08-08 20:51:05",
+  "stick": "",
+  "documents": [
+    {
+      "uuid": "26aa0f83270690da8d5b6edd3c087508",
+      "title": "Sheet_1",
+      "description": "",
+      "docType": "1",
+      "master": "",
+      "thumb": "/images/thumb-default.png",
+      "components": {},
+      "BOM": [
+        [
+          "Value",
+          "Quantity",
+          "Package",
+          "Components",
+          "CustomPara"
+        ],
+        [
+          "3.7",
+          1,
+          "BATTERY",
+          "BAT1",
+          {
+            "puuid": "3c66bdfb85e944beaa605930f4a2a6c9",
+            "uuid": ""
+          }
+        ],
+        [
+          "100uF",
+          1,
+          "PANASONIC_D",
+          "C1",
+          {
+            "puuid": "d96418c05b1c421e960d22862dcfda7b",
+            "uuid": ""
+          }
+        ],
+        [
+          "PARTSDHT11",
+          1,
+          "BGA121C50P11X11_600X600X100N",
+          "DHT1",
+          {
+            "puuid": "",
+            "uuid": ""
+          }
+        ],
+        [
+          "BSS123",
+          1,
+          "SOT23",
+          "Q1",
+          {
+            "puuid": "645f4e85c7f043fe86f1b1c8a5ca8679",
+            "uuid": ""
+          }
+        ],
+        [
+          "10k",
+          3,
+          "R0805",
+          "R1,R2,R3",
+          {
+            "puuid": "b60f399a7a7e41848b2be1eb49c79141",
+            "uuid": ""
+          }
+        ],
+        [
+          "5VBOOST",
+          1,
+          "BGA121C50P11X11_600X600X100N",
+          "U$1",
+          {
+            "puuid": "",
+            "uuid": ""
+          }
+        ],
+        [
+          "LM1117",
+          1,
+          "BGA121C50P11X11_600X600X100N",
+          "U$2",
+          {
+            "puuid": "",
+            "uuid": ""
+          }
+        ],
+        [
+          "ESP8266-01",
+          1,
+          "BGA121C50P11X11_600X600X100N",
+          "U$3",
+          {
+            "puuid": "",
+            "uuid": ""
+          }
+        ]
+      ],
+      "updateTime": 1628448665,
+      "createTime": 1628448665,
+      "histories": [],
+      "created_at": "2021-08-08 20:51:05",
+      "updated_at": "2021-08-08 20:51:05"
+    }
+  ],
+  "sort": [],
+  "title": "esp8266_weather",
+  "foldername": "esp8266_weather",
+  "schfilename": "esp8266_weather.json",
+  "schfilemtime": 1628448665315
+}
